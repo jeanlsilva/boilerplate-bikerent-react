@@ -1,18 +1,39 @@
-import { Dispatch, SetStateAction, useState } from 'react';
-import { Button, Typography, Box, Dialog, Grid } from '@mui/material';
+import { useState } from 'react';
+import { Button, Typography, Box, Grid } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
 
-interface CalendarProps {
-    dialogIsOpen: boolean;
-    setDialogIsOpen: Dispatch<SetStateAction<boolean>>;
-}
-
-export function Calendar({ dialogIsOpen, setDialogIsOpen }: CalendarProps) {
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+export function Calendar() {
+  const [selectedStartDate, setSelectedStartDate] = useState<Date | undefined>(undefined);
+  const [selectedEndDate, setSelectedEndDate] = useState<Date | undefined>(undefined);
 
   const handleDateClick = (date: Date) => {
-    setSelectedDate(date);
+    // if no start date or end date selected, set start date
+    // if start date selected and end date not selected and selected date is after start date, set end date
+    // if start date selected and end date not selected and selected date is before start date, set start date
+    // if start date selected and end date selected and selected date is before start date, set start date
+        // if start date selected and end date selected and selected date is after start date, set end date
+    if (!selectedStartDate && !selectedEndDate) {
+        setSelectedStartDate(date);
+    }
+    if (selectedStartDate && !selectedEndDate) {
+        if (date.getTime() > selectedStartDate.getTime()) {
+            setSelectedEndDate(date);
+        } else {
+            setSelectedStartDate(date);
+        }
+    }
+    if (selectedStartDate && selectedEndDate) {
+        if (date.getTime() < selectedStartDate.getTime()) {
+            setSelectedStartDate(date);
+        } else {
+            setSelectedEndDate(date);
+        }
+    }
+    if (selectedStartDate && selectedEndDate && date.getTime() > selectedEndDate.getTime()) {
+        setSelectedStartDate(date)
+        setSelectedEndDate(undefined)
+    }
   };
 
   const goToNextMonth = () => {
@@ -24,7 +45,7 @@ export function Calendar({ dialogIsOpen, setDialogIsOpen }: CalendarProps) {
   };
 
   const RenderCalendar = () => {
-    const weekdays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+    const weekdays = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 
     const year = new Date().getFullYear();
     const month = new Date().getMonth();
@@ -43,12 +64,12 @@ export function Calendar({ dialogIsOpen, setDialogIsOpen }: CalendarProps) {
     const calendarDays: JSX.Element[] = [];
 
     const Item = styled(Paper)(({ theme }) => ({
-        backgroundColor: theme.palette.mode === 'dark' ? '#1A2027' : '#1F49D1',
         ...theme.typography.body2,
         padding: theme.spacing(1),
         textAlign: 'center',
         boxShadow: 'none',
-        color: 'white'
+        background: 'inherit',
+        color: 'inherit'
       }));
 
     for (let i = 0; i < firstDay; i++) {
@@ -68,6 +89,12 @@ export function Calendar({ dialogIsOpen, setDialogIsOpen }: CalendarProps) {
         <Item
           key={i}
           onClick={() => handleDateClick(date)}
+          sx={
+            (selectedStartDate && 
+                date.getTime() === selectedStartDate.getTime() || 
+                selectedEndDate && date.getTime() === selectedEndDate.getTime()
+            ) ? { borderRadius: '50%', background: '#fff', color: '#1F49D1' } : {}
+        }
         >
           <Typography>{i}</Typography>
         </Item>
@@ -86,22 +113,37 @@ export function Calendar({ dialogIsOpen, setDialogIsOpen }: CalendarProps) {
       );
     }
 
+    const isInsideRange = (day: number) => {
+        const date = new Date(year, month, day);
+        return selectedStartDate && !selectedEndDate ? 
+                (date.getTime() === selectedStartDate.getTime() ? { background: '#C1CFF2', color: '#1F49D1', borderRadius: '50%' } : {})
+            : selectedStartDate && selectedEndDate ? 
+                (
+                    date.getTime() === selectedStartDate.getTime()
+                    ? { background: '#C1CFF2', color: '#1F49D1', borderTopLeftRadius: '50%', borderBottomLeftRadius: '50%' }
+                    : date.getTime() === selectedEndDate.getTime()
+                    ? { background: '#C1CFF2', color: '#1F49D1', borderTopRightRadius: '50%', borderBottomRightRadius: '50%' }
+                    : date.getTime() > selectedStartDate.getTime() && date.getTime() < selectedEndDate.getTime()
+                    ? { background: '#C1CFF2', borderRadius: 0 } : {}
+                ) : { background: '#1F49D1', color: '#fff' }
+    }
+
     const dividedCalendarDays: JSX.Element[] = []
     for (let i = 0; i <= calendarDays.length; i += 7) {
-        dividedCalendarDays.push(<Grid container spacing={1.5}>
-            <Grid item xs={12/7} mb={1.5}>{calendarDays[i]}</Grid>
-            <Grid item xs={12/7} mb={1.5}>{calendarDays[i + 1]}</Grid>
-            <Grid item xs={12/7} mb={1.5}>{calendarDays[i + 2]}</Grid>
-            <Grid item xs={12/7} mb={1.5}>{calendarDays[i + 3]}</Grid>
-            <Grid item xs={12/7} mb={1.5}>{calendarDays[i + 4]}</Grid>
-            <Grid item xs={12/7} mb={1.5}>{calendarDays[i + 5]}</Grid>
-            <Grid item xs={12/7}>{calendarDays[i + 6]}</Grid>
+        dividedCalendarDays.push(<Grid container spacing={0}>
+            <Grid item xs={12/7} sx={() => isInsideRange(i)}>{calendarDays[i]}</Grid>
+            <Grid item xs={12/7} sx={() => isInsideRange(i + 1)}>{calendarDays[i + 1]}</Grid>
+            <Grid item xs={12/7} sx={() => isInsideRange(i + 2)}>{calendarDays[i + 2]}</Grid>
+            <Grid item xs={12/7} sx={() => isInsideRange(i + 3)}>{calendarDays[i + 3]}</Grid>
+            <Grid item xs={12/7} sx={() => isInsideRange(i + 4)}>{calendarDays[i + 4]}</Grid>
+            <Grid item xs={12/7} sx={() => isInsideRange(i + 5)}>{calendarDays[i + 5]}</Grid>
+            <Grid item xs={12/7} sx={() => isInsideRange(i + 6)}>{calendarDays[i + 6]}</Grid>
         </Grid>)
     }
 
     return (
-      <Box>
-        <Box display='flex' alignItems='center' justifyContent='space-between' mb={2}>
+      <Box borderRadius={1} p={2} mb={4} bgcolor='#1F49D1' color='#fff'>
+        <Box display='flex' alignItems='center' justifyContent='space-between' gap={2} mb={2}>
         <Typography variant='h6'sx={{ fontSize: '1.25rem', fontWeight: 500 }}>
             {monthAsText} {year}
         </Typography>
@@ -135,15 +177,5 @@ export function Calendar({ dialogIsOpen, setDialogIsOpen }: CalendarProps) {
     );
   };
 
-  return (
-    <Dialog 
-        open={dialogIsOpen} 
-        onClose={() => setDialogIsOpen(false)} 
-        maxWidth={false} 
-        PaperProps={{ style: { borderRadius: '1rem', padding: '1rem', backgroundColor: '#1F49D1', color: '#fff' } }} 
-        sx={{ width: '40%', mx: 'auto', left: '14vw' }}
-    >
-        <RenderCalendar />
-    </Dialog>
-  );
+  return <RenderCalendar />
 }
