@@ -19,12 +19,15 @@ import {
   OverviewContainer,
   PriceRow,
 } from './BikeDetails.styles'
+import { Calendar } from 'components/Calendar'
+import { useState } from 'react'
 
 interface BikeDetailsProps {
   bike?: Bike
 }
 
 const BikeDetails = ({ bike }: BikeDetailsProps) => {
+  const [dialogIsOpen, setDialogIsOpen] = useState(false)
   const rateByDay = bike?.rate || 0
   const rateByWeek = rateByDay * 7
 
@@ -149,11 +152,13 @@ const BikeDetails = ({ bike }: BikeDetailsProps) => {
             disableElevation
             variant='contained'
             data-testid='bike-booking-button'
+            onClick={() => setDialogIsOpen(true)}
           >
             Add to booking
           </BookingButton>
         </OverviewContainer>
       </Content>
+      <Calendar dialogIsOpen={dialogIsOpen} setDialogIsOpen={setDialogIsOpen} />
     </div>
   )
 }
