@@ -27,7 +27,7 @@ interface BikeDetailsProps {
 }
 
 const BikeDetails = ({ bike }: BikeDetailsProps) => {
-  const [dialogIsOpen, setDialogIsOpen] = useState(false)
+  const [showCalendar, setShowCalendar] = useState(false)
   const rateByDay = bike?.rate || 0
   const rateByWeek = rateByDay * 7
 
@@ -112,8 +112,10 @@ const BikeDetails = ({ bike }: BikeDetailsProps) => {
             <BookingAddressMap />
           </Box>
         </DetailsContainer>
-
+        
         <OverviewContainer variant='outlined' data-testid='bike-overview-container'>
+          <Typography variant="h1" fontSize={24} mb={1.25}>Select date and time</Typography>
+          <Calendar />
           <Typography variant='h2' fontSize={16} marginBottom={1.25}>
             Booking Overview
           </Typography>
@@ -152,13 +154,12 @@ const BikeDetails = ({ bike }: BikeDetailsProps) => {
             disableElevation
             variant='contained'
             data-testid='bike-booking-button'
-            onClick={() => setDialogIsOpen(true)}
+            onClick={() => setShowCalendar(true)}
           >
             Add to booking
           </BookingButton>
         </OverviewContainer>
       </Content>
-      <Calendar dialogIsOpen={dialogIsOpen} setDialogIsOpen={setDialogIsOpen} />
     </div>
   )
 }
