@@ -1,9 +1,13 @@
-import { useState } from 'react';
+import { Dispatch, SetStateAction, useEffect, useState } from 'react';
 import { Button, Typography, Box, Grid } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Paper from '@mui/material/Paper';
 
-export function Calendar() {
+interface CalendarProps {
+  setNumberOfDays: Dispatch<SetStateAction<number>>
+}
+
+export function Calendar({ setNumberOfDays }: CalendarProps) {
   const [selectedStartDate, setSelectedStartDate] = useState<Date | undefined>(undefined);
   const [selectedEndDate, setSelectedEndDate] = useState<Date | undefined>(undefined);
   const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth())
@@ -175,6 +179,11 @@ export function Calendar() {
       </Box>
     );
   };
+
+  useEffect(() => {
+    if (!selectedEndDate) setNumberOfDays(1)
+    else setNumberOfDays(Math.ceil(Math.abs((selectedEndDate?.getTime() || 0) - (selectedStartDate?.getTime() || 0)) / (1000 * 60 * 60 * 24)))
+  }, [selectedStartDate, selectedEndDate])
 
   return <RenderCalendar />
 }

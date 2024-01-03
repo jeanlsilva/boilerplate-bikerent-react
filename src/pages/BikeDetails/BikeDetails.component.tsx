@@ -27,12 +27,11 @@ interface BikeDetailsProps {
 }
 
 const BikeDetails = ({ bike }: BikeDetailsProps) => {
-  const [showCalendar, setShowCalendar] = useState(false)
   const rateByDay = bike?.rate || 0
   const rateByWeek = rateByDay * 7
-
+  const [numberOfDays, setNumberOfDays] = useState(0)
   const servicesFee = getServicesFee(rateByDay)
-  const total = rateByDay + servicesFee
+  const total = (rateByDay * numberOfDays) + servicesFee
 
   return (
     <div data-testid='bike-details-page'>
@@ -115,7 +114,7 @@ const BikeDetails = ({ bike }: BikeDetailsProps) => {
         
         <OverviewContainer variant='outlined' data-testid='bike-overview-container'>
           <Typography variant="h1" fontSize={24} mb={1.25}>Select date and time</Typography>
-          <Calendar />
+          <Calendar setNumberOfDays={setNumberOfDays} />
           <Typography variant='h2' fontSize={16} marginBottom={1.25}>
             Booking Overview
           </Typography>
@@ -127,7 +126,6 @@ const BikeDetails = ({ bike }: BikeDetailsProps) => {
               <Typography marginRight={1}>Subtotal</Typography>
               <InfoIcon fontSize='small' />
             </Box>
-
             <Typography>{rateByDay} €</Typography>
           </PriceRow>
 
@@ -154,7 +152,6 @@ const BikeDetails = ({ bike }: BikeDetailsProps) => {
             disableElevation
             variant='contained'
             data-testid='bike-booking-button'
-            onClick={() => setShowCalendar(true)}
           >
             Add to booking
           </BookingButton>
