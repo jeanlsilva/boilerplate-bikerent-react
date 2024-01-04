@@ -3,6 +3,8 @@ import BikeList from 'components/BikeList'
 import Bike from 'models/Bike'
 import { Content } from './Home.styles'
 import ConfigErrorMessage from 'components/ConfigErrorMessage'
+import { useContext, useEffect } from 'react'
+import AuthContext from 'contexts/AuthContext'
 
 interface HomeProps {
   bikes: Bike[]

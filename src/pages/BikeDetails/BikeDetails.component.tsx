@@ -20,7 +20,10 @@ import {
   PriceRow,
 } from './BikeDetails.styles'
 import { Calendar } from 'components/Calendar'
-import { useState } from 'react'
+import { useContext, useState } from 'react'
+import rentBike from 'services/rentBike'
+import AuthContext from 'contexts/AuthContext'
+import { useNavigate } from 'react-router-dom'
 
 interface BikeDetailsProps {
   bike?: Bike
@@ -32,6 +35,22 @@ const BikeDetails = ({ bike }: BikeDetailsProps) => {
   const [numberOfDays, setNumberOfDays] = useState(0)
   const servicesFee = getServicesFee(rateByDay)
   const total = (rateByDay * numberOfDays) + servicesFee
+  const { user } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const handleAddToBooking = async () => {
+    if (user && bike?.id) {
+      await rentBike({
+        bikeId: bike?.id,
+        userId: user.id,
+        subtotal: (rateByDay * numberOfDays),
+        feeAmount: servicesFee,
+        total
+      })
+    } else {
+      navigate('/login');
+    }
+  }
 
   return (
     <div data-testid='bike-details-page'>
@@ -152,6 +171,7 @@ const BikeDetails = ({ bike }: BikeDetailsProps) => {
             disableElevation
             variant='contained'
             data-testid='bike-booking-button'
+            onClick={handleAddToBooking}
           >
             Add to booking
           </BookingButton>

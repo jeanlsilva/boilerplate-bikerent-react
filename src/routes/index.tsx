@@ -2,13 +2,16 @@ import { ThemeProvider } from '@mui/system'
 import { BrowserRouter } from 'react-router-dom'
 import theme from 'styles/theme'
 import AppRoutes from './app.routes'
+import { AuthProvider } from 'contexts/AuthContext'
 
 const App = () => {
   return (
     <BrowserRouter>
-      <ThemeProvider theme={theme}>
-        <AppRoutes />
-      </ThemeProvider>
+      <AuthProvider>
+        <ThemeProvider theme={theme}>
+          <AppRoutes />
+        </ThemeProvider>
+      </AuthProvider>
     </BrowserRouter>
   )
 }

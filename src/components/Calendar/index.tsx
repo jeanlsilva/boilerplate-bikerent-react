@@ -47,17 +47,23 @@ export function Calendar({ setNumberOfDays }: CalendarProps) {
 
   const isInsideRange = (day: number) => {
     const date = new Date(selectedYear, selectedMonth, day);
-    return selectedStartDate && !selectedEndDate ? 
-            (date.getTime() === selectedStartDate.getTime() ? { background: '#C1CFF2', color: '#1F49D1', borderRadius: '50%' } : {})
-        : selectedStartDate && selectedEndDate ? 
-            (
-                date.getTime() === selectedStartDate.getTime()
-                ? { background: '#C1CFF2', color: '#1F49D1', borderTopLeftRadius: '50%', borderBottomLeftRadius: '50%' }
-                : date.getTime() === selectedEndDate.getTime()
-                ? { background: '#C1CFF2', color: '#1F49D1', borderTopRightRadius: '50%', borderBottomRightRadius: '50%' }
-                : date.getTime() > selectedStartDate.getTime() && date.getTime() < selectedEndDate.getTime()
-                ? { background: '#C1CFF2', borderRadius: 0 } : {}
-            ) : { background: '#1F49D1', color: '#fff' }
+    return {
+      aspectRatio: '1/1',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      ...(selectedStartDate && !selectedEndDate ? 
+        (date.getTime() === selectedStartDate.getTime() ? { background: '#C1CFF2', color: '#1F49D1', borderRadius: '50%' } : {})
+    : selectedStartDate && selectedEndDate ? 
+        (
+            date.getTime() === selectedStartDate.getTime()
+            ? { background: '#C1CFF2', color: '#1F49D1', borderTopLeftRadius: '50%', borderBottomLeftRadius: '50%' }
+            : date.getTime() === selectedEndDate.getTime()
+            ? { background: '#C1CFF2', color: '#1F49D1', borderTopRightRadius: '50%', borderBottomRightRadius: '50%' }
+            : date.getTime() > selectedStartDate.getTime() && date.getTime() < selectedEndDate.getTime()
+            ? { background: '#C1CFF2', borderRadius: 0 } : {}
+        ) : { background: '#1F49D1', color: '#fff' })
+    }
 }
 
   const RenderCalendar = () => {
@@ -104,11 +110,18 @@ export function Calendar({ setNumberOfDays }: CalendarProps) {
         <Item
           key={i}
           onClick={() => handleDateClick(date)}
-          sx={
-            (selectedStartDate && 
-                date.getTime() === selectedStartDate.getTime() || 
-                selectedEndDate && date.getTime() === selectedEndDate.getTime()
-            ) ? { borderRadius: '50%', background: '#fff', color: '#1F49D1' } : {}
+          sx={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            cursor: 'pointer',
+            ...((selectedStartDate && 
+              date.getTime() === selectedStartDate.getTime() || 
+              selectedEndDate && date.getTime() === selectedEndDate.getTime()
+          ) ? { borderRadius: '50%', background: '#fff', color: '#1F49D1' } : {})
+          }
         }
         >
           <Typography>{i}</Typography>
