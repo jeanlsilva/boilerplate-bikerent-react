@@ -1,5 +1,5 @@
 import { Box, Typography } from '@mui/material'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { Actions, Container, Icon, LoginButton, SignUpButton, Title } from './Header.desktop.styles'
 import { useContext } from 'react'
 import AuthContext from 'contexts/AuthContext'
@@ -9,7 +9,9 @@ const DesktopHeader = () => {
 
   return (
     <Container data-testid='header'>
-      <Title data-testid='app-name'>Bike Rental</Title>
+      <Link to='/'>
+        <Title data-testid='app-name'>Bike Rental</Title>
+      </Link>
 
       <Actions>
         <Box display='flex' alignItems='center' data-testid='location-label'>
@@ -22,7 +24,7 @@ const DesktopHeader = () => {
 
         {isAuthenticated ? (
           <>
-            <Typography>Hello, {user?.name}</Typography>
+            <Typography color='white'>Hello, {user?.name}</Typography>
             <LoginButton onClick={logout}>Logout</LoginButton>
           </>
         ) : (

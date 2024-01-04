@@ -1,5 +1,5 @@
 import { Box, Dialog, IconButton, Typography } from '@mui/material'
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 import { Link } from 'react-router-dom'
 import {
   Actions,
@@ -11,8 +11,10 @@ import {
   SignUpButton,
   Title,
 } from './Header.mobile.styles'
+import AuthContext from 'contexts/AuthContext'
 
 const MobileHeader = () => {
+  const { isAuthenticated, user, logout } = useContext(AuthContext)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   const handleToggleIsMenuOpen = () => {
@@ -41,15 +43,24 @@ const MobileHeader = () => {
 
       <Dialog open={isMenuOpen} onClose={handleToggleIsMenuOpen}>
         <MenuModal>
-          <Link to='/login' data-testid='login-button'>
-            <LoginButton>Log in</LoginButton>
-          </Link>
+          {isAuthenticated ? (
+            <>
+              <Typography mb={3}>Hello, {user?.name}</Typography>
+              <LoginButton onClick={logout}>Logout</LoginButton>
+            </>
+          ) : (
+            <>
+              <Link to='/login' data-testid='login-button'>
+                <LoginButton>Log in</LoginButton>
+              </Link>
 
-          <Link to='/sign-up' data-testid='signup-button'>
-            <SignUpButton variant='contained' color='secondary' disableElevation>
-              Sign up
-            </SignUpButton>
-          </Link>
+              <Link to='/sign-up' data-testid='signup-button'>
+                <SignUpButton variant='contained' color='secondary' disableElevation>
+                  Sign up
+                </SignUpButton>
+              </Link>
+            </>
+          )}
         </MenuModal>
       </Dialog>
     </>

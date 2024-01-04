@@ -1,4 +1,4 @@
-import { Box, Breadcrumbs, Divider, Link, Typography } from '@mui/material'
+import { AlertColor, Box, Breadcrumbs, Divider, Link, Typography } from '@mui/material'
 import BikeImageSelector from 'components/BikeImageSelector'
 import BikeSpecs from 'components/BikeSpecs'
 import BikeType from 'components/BikeType'
@@ -24,6 +24,8 @@ import { useContext, useState } from 'react'
 import rentBike from 'services/rentBike'
 import AuthContext from 'contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
+import CustomSnackbar from 'components/Snackbar'
+import { BikeImage, ImageContainer, Name } from 'components/BikeCard/BikeCard.styles'
 
 interface BikeDetailsProps {
   bike?: Bike
@@ -33,10 +35,14 @@ const BikeDetails = ({ bike }: BikeDetailsProps) => {
   const rateByDay = bike?.rate || 0
   const rateByWeek = rateByDay * 7
   const [numberOfDays, setNumberOfDays] = useState(0)
-  const servicesFee = getServicesFee(rateByDay)
+  const servicesFee = getServicesFee((rateByDay * numberOfDays))
   const total = (rateByDay * numberOfDays) + servicesFee
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
+  const [open, setOpen] = useState(false);
+  const [severity, setSeverity] = useState<AlertColor>('error');
+  const [message, setMessage] = useState('');
+  const [rentCompleted, setRentCompleted] = useState(false)
 
   const handleAddToBooking = async () => {
     if (user && bike?.id) {
@@ -47,9 +53,15 @@ const BikeDetails = ({ bike }: BikeDetailsProps) => {
         feeAmount: servicesFee,
         total
       })
+
+      setSeverity('success');
+      setMessage('Bike successfully rent!');
+      setRentCompleted(true)
     } else {
       navigate('/login');
+      setMessage('Something went wrong when trying to rent the bike');
     }
+    setOpen(true);
   }
 
   return (
@@ -132,51 +144,73 @@ const BikeDetails = ({ bike }: BikeDetailsProps) => {
         </DetailsContainer>
         
         <OverviewContainer variant='outlined' data-testid='bike-overview-container'>
-          <Typography variant="h1" fontSize={24} mb={1.25}>Select date and time</Typography>
-          <Calendar setNumberOfDays={setNumberOfDays} />
-          <Typography variant='h2' fontSize={16} marginBottom={1.25}>
-            Booking Overview
-          </Typography>
+          {rentCompleted ? (
+            <Box display='flex' alignItems='center' flexDirection='column'>
+              <Typography variant='h4'>Thank you!</Typography>
+              <Typography>Your bike is booked</Typography>
+              <ImageContainer>
+                <BikeImage
+                  src={bike?.imageUrls[0]}
+                  isLoaded={true}
+                  width='100%'
+                  alt='Bike Image'
+                  data-testid='bike-image'
+                />
+              </ImageContainer>
 
-          <Divider />
-
-          <PriceRow marginTop={1.75} data-testid='bike-overview-single-price'>
-            <Box display='flex' alignItems='center'>
-              <Typography marginRight={1}>Subtotal</Typography>
-              <InfoIcon fontSize='small' />
+              <Name data-testid='bike-name'>{bike?.name}</Name>  
+              <BikeType type={bike?.type} />          
             </Box>
-            <Typography>{rateByDay} €</Typography>
-          </PriceRow>
+          ) : (
+            <>
+              <Typography variant="h1" fontSize={24} mb={1.25}>Select date and time</Typography>
+              <Calendar setNumberOfDays={setNumberOfDays} />
+              <Typography variant='h2' fontSize={16} marginBottom={1.25}>
+                Booking Overview
+              </Typography>
 
-          <PriceRow marginTop={1.5} data-testid='bike-overview-single-price'>
-            <Box display='flex' alignItems='center'>
-              <Typography marginRight={1}>Service Fee</Typography>
-              <InfoIcon fontSize='small' />
-            </Box>
+              <Divider />
 
-            <Typography>{servicesFee} €</Typography>
-          </PriceRow>
+              <PriceRow marginTop={1.75} data-testid='bike-overview-single-price'>
+                <Box display='flex' alignItems='center'>
+                  <Typography marginRight={1}>Subtotal</Typography>
+                  <InfoIcon fontSize='small' />
+                </Box>
+                <Typography>{rateByDay * numberOfDays} €</Typography>
+              </PriceRow>
 
-          <PriceRow marginTop={1.75} data-testid='bike-overview-total'>
-            <Typography fontWeight={800} fontSize={16}>
-              Total
-            </Typography>
-            <Typography variant='h2' fontSize={24} letterSpacing={1}>
-              {total} €
-            </Typography>
-          </PriceRow>
+              <PriceRow marginTop={1.5} data-testid='bike-overview-single-price'>
+                <Box display='flex' alignItems='center'>
+                  <Typography marginRight={1}>Service Fee</Typography>
+                  <InfoIcon fontSize='small' />
+                </Box>
 
-          <BookingButton
-            fullWidth
-            disableElevation
-            variant='contained'
-            data-testid='bike-booking-button'
-            onClick={handleAddToBooking}
-          >
-            Add to booking
-          </BookingButton>
+                <Typography>{servicesFee} €</Typography>
+              </PriceRow>
+
+              <PriceRow marginTop={1.75} data-testid='bike-overview-total'>
+                <Typography fontWeight={800} fontSize={16}>
+                  Total
+                </Typography>
+                <Typography variant='h2' fontSize={24} letterSpacing={1}>
+                  {total} €
+                </Typography>
+              </PriceRow>
+
+              <BookingButton
+                fullWidth
+                disableElevation
+                variant='contained'
+                data-testid='bike-booking-button'
+                onClick={handleAddToBooking}
+              >
+                Add to booking
+              </BookingButton>
+            </>
+          )}
         </OverviewContainer>
       </Content>
+      <CustomSnackbar open={open} setOpen={setOpen} severity={severity} message={message} />
     </div>
   )
 }
