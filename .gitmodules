@@ -1,0 +1,3 @@
+[submodule "boilerplate-bikerent-nodejs"]
+	path = boilerplate-bikerent-nodejs
+	url = https://github.com/jeanlsilva/boilerplate-bikerent-nodejs.git
